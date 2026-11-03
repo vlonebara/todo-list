@@ -3,12 +3,20 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
 	webDir := http.FileServer(http.Dir("./web"))
 	http.Handle("/", webDir)
 
-	log.Println("Server is listening on :7540")
-	log.Fatal(http.ListenAndServe(":7540", nil))
+	port := os.Getenv("TODO_PORT")
+	//Проверка на пустой порт
+	if port == "" {
+		port = "7540"
+	}
+	addr := ":" + port
+
+	log.Printf("Server is listening on %s", addr)
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
