@@ -7,12 +7,23 @@ import (
 	"github.com/vlonebara/todo-list/pkg/service"
 )
 
-type getTaskResponse struct {
+type taskResponse struct {
 	ID      string `json:"id"`
 	Date    string `json:"date"`
 	Title   string `json:"title"`
 	Comment string `json:"comment"`
 	Repeat  string `json:"repeat"`
+}
+
+// taskToResponse преобразует задачу сервиса в JSON-формат API.
+func taskToResponse(task service.Task) taskResponse {
+	return taskResponse{
+		ID:      strconv.FormatInt(task.ID, 10),
+		Date:    task.Date,
+		Title:   task.Title,
+		Comment: task.Comment,
+		Repeat:  task.Repeat,
+	}
 }
 
 // getTaskHandler возвращает данные задачи с указанным ID.
@@ -28,11 +39,5 @@ func getTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, getTaskResponse{
-		ID:      strconv.FormatInt(task.ID, 10),
-		Date:    task.Date,
-		Title:   task.Title,
-		Comment: task.Comment,
-		Repeat:  task.Repeat,
-	})
+	writeJSON(w, http.StatusOK, taskToResponse(task))
 }
