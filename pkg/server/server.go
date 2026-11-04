@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/vlonebara/todo-list/pkg/api"
 )
 
 func Run() error {
@@ -13,6 +15,7 @@ func Run() error {
 	}
 	addr := ":" + port
 
+	api.Init()
 	fileServer := http.FileServer(http.Dir("./web"))
 	http.Handle("/", fileServer)
 
