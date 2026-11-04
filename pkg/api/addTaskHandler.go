@@ -28,8 +28,8 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	request, err := decodeAddTaskRequest(r)
-	if err != nil {
+	var request addTaskRequest
+	if err := decodeJSONRequest(r, &request); err != nil {
 		writeAPIError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -43,15 +43,14 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, addTaskResponse{ID: strconv.FormatInt(id, 10)})
 }
 
-// decodeAddTaskRequest читает один JSON-объект с данными задачи.
-func decodeAddTaskRequest(r *http.Request) (addTaskRequest, error) {
-	var request addTaskRequest
+// decodeJSONRequest читает один JSON-объект из тела запроса.
+func decodeJSONRequest(r *http.Request, value any) error {
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&request); err != nil {
-		return request, errors.New("Некорректный JSON")
+	if err := decoder.Decode(value); err != nil {
+		return errors.New("Некорректный JSON")
 	}
 	if err := decoder.Decode(&struct{}{}); err != io.EOF {
-		return request, errors.New("Некорректный JSON")
+		return errors.New("Некорректный JSON")
 	}
-	return request, nil
+	return nil
 }
