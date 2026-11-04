@@ -17,5 +17,5 @@ func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		writeAPIError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	writeJSON(w, http.StatusOK, struct{}{})
 }
