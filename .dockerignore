@@ -1,0 +1,9 @@
+.git
+.env
+.env.*
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+tests/
+README.md
