@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/vlonebara/todo-list/pkg/db"
 )
 
 // EditTaskStatus помечает задачу выполненной и переносит её или удаляет.
@@ -14,7 +16,7 @@ func EditTaskStatus(id string) error {
 		return fmt.Errorf("Некорректный идентификатор задачи")
 	}
 
-	database, err := openDatabase()
+	database, err := db.OpenDatabase()
 	if err != nil {
 		return fmt.Errorf("open database: %w", err)
 	}

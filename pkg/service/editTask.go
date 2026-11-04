@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/vlonebara/todo-list/pkg/db"
 )
 
 // EditTask проверяет и сохраняет новые данные задачи.
@@ -18,7 +20,7 @@ func EditTask(id, date, title, comment, repeat string) error {
 		return err
 	}
 
-	database, err := openDatabase()
+	database, err := db.OpenDatabase()
 	if err != nil {
 		return fmt.Errorf("open database: %w", err)
 	}

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/vlonebara/todo-list/pkg/db"
 )
 
 // AddTask validates and saves a task, returning its database ID.
@@ -13,7 +15,7 @@ func AddTask(date, title, comment, repeat string) (int64, error) {
 		return 0, err
 	}
 
-	database, err := openDatabase()
+	database, err := db.OpenDatabase()
 	if err != nil {
 		return 0, fmt.Errorf("open database: %w", err)
 	}

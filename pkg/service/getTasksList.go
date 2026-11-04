@@ -3,13 +3,15 @@ package service
 import (
 	"fmt"
 	"time"
+
+	"github.com/vlonebara/todo-list/pkg/db"
 )
 
 const searchDateLayout = "02.01.2006"
 
 // GetTasksList возвращает до 15 задач по дате или тексту поиска.
 func GetTasksList(search string) ([]Task, error) {
-	database, err := openDatabase()
+	database, err := db.OpenDatabase()
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}

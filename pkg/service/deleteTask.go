@@ -3,6 +3,8 @@ package service
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/vlonebara/todo-list/pkg/db"
 )
 
 // DeleteTask удаляет задачу с указанным ID.
@@ -12,7 +14,7 @@ func DeleteTask(id string) error {
 		return fmt.Errorf("Некорректный идентификатор задачи")
 	}
 
-	database, err := openDatabase()
+	database, err := db.OpenDatabase()
 	if err != nil {
 		return fmt.Errorf("open database: %w", err)
 	}

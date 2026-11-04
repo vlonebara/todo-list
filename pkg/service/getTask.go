@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+
+	"github.com/vlonebara/todo-list/pkg/db"
 )
 
 // Task содержит сохранённые данные задачи.
@@ -22,7 +24,7 @@ func GetTask(id string) (Task, error) {
 		return Task{}, fmt.Errorf("Некорректный идентификатор задачи")
 	}
 
-	database, err := openDatabase()
+	database, err := db.OpenDatabase()
 	if err != nil {
 		return Task{}, fmt.Errorf("open database: %w", err)
 	}
