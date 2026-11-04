@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/vlonebara/todo-list/pkg/db"
@@ -56,13 +57,22 @@ func loadEnvFile(file string) error {
 
 		key, value, ok := strings.Cut(line, "=")
 		key = strings.TrimSpace(key)
+		value = strings.TrimSpace(value)
 		if !ok || key == "" {
 			return fmt.Errorf("invalid .env entry on line %d", lineNumber)
+		}
+		if strings.HasPrefix(value, `"`) {
+			value, err = strconv.Unquote(value)
+			if err != nil {
+				return fmt.Errorf("invalid value on .env line %d", lineNumber)
+			}
+		} else if len(value) >= 2 && strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'") {
+			value = value[1 : len(value)-1]
 		}
 		if _, exists := os.LookupEnv(key); exists {
 			continue
 		}
-		if err := os.Setenv(key, strings.TrimSpace(value)); err != nil {
+		if err := os.Setenv(key, value); err != nil {
 			return fmt.Errorf("set %s: %w", key, err)
 		}
 	}
