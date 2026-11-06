@@ -4,36 +4,16 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/vlonebara/todo-list/pkg/db"
 )
 
-// AddTask validates and saves a task, returning its database ID.
-func AddTask(date, title, comment, repeat string) (int64, error) {
+// AddTask проверяет и сохраняет задачу, возвращая её ID.
+func (s TaskService) AddTask(date, title, comment, repeat string) (int64, error) {
 	date, err := prepareTaskDate(date, title, repeat, time.Now())
 	if err != nil {
 		return 0, err
 	}
 
-	database, err := db.OpenDatabase()
-	if err != nil {
-		return 0, fmt.Errorf("open database: %w", err)
-	}
-	defer database.Close()
-
-	result, err := database.Exec(
-		`INSERT INTO scheduler (date, title, comment, repeat) VALUES (?, ?, ?, ?)`,
-		date, title, comment, repeat,
-	)
-	if err != nil {
-		return 0, fmt.Errorf("insert task: %w", err)
-	}
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("get task ID: %w", err)
-	}
-	return id, nil
+	return s.store.Add(Task{Date: date, Title: title, Comment: comment, Repeat: repeat})
 }
 
 // prepareTaskDate проверяет поля задачи и исправляет просроченную дату.

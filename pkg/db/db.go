@@ -18,13 +18,8 @@ var schema = []string{
 	`CREATE INDEX IF NOT EXISTS idx_scheduler_date ON scheduler (date)`,
 }
 
-func Create(file string) error {
-	database, err := sql.Open("sqlite", file)
-	if err != nil {
-		return fmt.Errorf("open database: %w", err)
-	}
-	defer database.Close()
-
+// Create создаёт таблицу и индекс в открытой БД, если их ещё нет.
+func Create(database *sql.DB) error {
 	for _, statement := range schema {
 		if _, err := database.Exec(statement); err != nil {
 			return fmt.Errorf("execute schema: %w", err)

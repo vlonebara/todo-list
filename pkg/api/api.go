@@ -1,15 +1,25 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
 
-// init инициализирует обработчики сервера
-func Init() {
-	http.HandleFunc("/api/nextdate", nextDayHandler)
-	http.HandleFunc("POST /api/signin", authHandler)
-	http.HandleFunc("GET /api/tasks", auth(getTasksListHandler))
-	http.HandleFunc("GET /api/task", auth(getTaskHandler))
-	http.HandleFunc("POST /api/task", auth(addTaskHandler))
-	http.HandleFunc("PUT /api/task", auth(editTaskHandler))
-	http.HandleFunc("DELETE /api/task", auth(deleteTaskHandler))
-	http.HandleFunc("POST /api/task/done", auth(editTaskStatusHandler))
+	"github.com/vlonebara/todo-list/pkg/service"
+)
+
+// taskHandlers передаёт общий сервис задач HTTP-обработчикам.
+type taskHandlers struct {
+	tasks service.TaskService
+}
+
+// Init регистрирует обработчики с готовым сервисом задач.
+func Init(mux *http.ServeMux, tasks service.TaskService) {
+	handlers := taskHandlers{tasks: tasks}
+	mux.HandleFunc("/api/nextdate", nextDayHandler)
+	mux.HandleFunc("POST /api/signin", authHandler)
+	mux.HandleFunc("GET /api/tasks", auth(handlers.getTasksListHandler))
+	mux.HandleFunc("GET /api/task", auth(handlers.getTaskHandler))
+	mux.HandleFunc("POST /api/task", auth(handlers.addTaskHandler))
+	mux.HandleFunc("PUT /api/task", auth(handlers.editTaskHandler))
+	mux.HandleFunc("DELETE /api/task", auth(handlers.deleteTaskHandler))
+	mux.HandleFunc("POST /api/task/done", auth(handlers.editTaskStatusHandler))
 }

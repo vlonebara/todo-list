@@ -1,10 +1,6 @@
 package api
 
-import (
-	"net/http"
-
-	"github.com/vlonebara/todo-list/pkg/service"
-)
+import "net/http"
 
 type editTaskRequest struct {
 	ID      string `json:"id"`
@@ -15,7 +11,7 @@ type editTaskRequest struct {
 }
 
 // editTaskHandler обновляет задачу и возвращает ошибку, если обновление не удалось.
-func editTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (h taskHandlers) editTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		writeAPIError(w, http.StatusMethodNotAllowed, "Метод не поддерживается")
 		return
@@ -27,7 +23,7 @@ func editTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := service.EditTask(request.ID, request.Date, request.Title, request.Comment, request.Repeat); err != nil {
+	if err := h.tasks.EditTask(request.ID, request.Date, request.Title, request.Comment, request.Repeat); err != nil {
 		writeAPIError(w, http.StatusBadRequest, err.Error())
 		return
 	}

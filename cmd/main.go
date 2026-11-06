@@ -9,27 +9,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/vlonebara/todo-list/pkg/db"
 	"github.com/vlonebara/todo-list/pkg/server"
 )
 
 func main() {
 	if err := loadEnvFile(".env"); err != nil {
 		log.Fatal("load .env: ", err)
-	}
-
-	//проверка наличия бд
-	dbFile := "scheduler.db"
-	if envDBFile := os.Getenv("TODO_DBFILE"); envDBFile != "" {
-		dbFile = envDBFile
-	}
-
-	if _, err := os.Stat(dbFile); errors.Is(err, os.ErrNotExist) {
-		if err := db.Create(dbFile); err != nil {
-			log.Fatal("create database: ", err)
-		}
-	} else if err != nil {
-		log.Fatal("check database file: ", err)
 	}
 
 	if err := server.Run(); err != nil {

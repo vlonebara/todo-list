@@ -6,8 +6,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-
-	"github.com/vlonebara/todo-list/pkg/service"
 )
 
 type addTaskRequest struct {
@@ -22,7 +20,7 @@ type addTaskResponse struct {
 }
 
 // addTaskHandler обрабатывает POST-запрос и возвращает ID задачи или ошибку.
-func addTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (h taskHandlers) addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeAPIError(w, http.StatusMethodNotAllowed, "Метод не поддерживается")
 		return
@@ -34,7 +32,7 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := service.AddTask(request.Date, request.Title, request.Comment, request.Repeat)
+	id, err := h.tasks.AddTask(request.Date, request.Title, request.Comment, request.Repeat)
 	if err != nil {
 		writeAPIError(w, http.StatusBadRequest, err.Error())
 		return

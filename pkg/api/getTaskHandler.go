@@ -27,13 +27,13 @@ func taskToResponse(task service.Task) taskResponse {
 }
 
 // getTaskHandler возвращает данные задачи с указанным ID.
-func getTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (h taskHandlers) getTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeAPIError(w, http.StatusMethodNotAllowed, "Метод не поддерживается")
 		return
 	}
 
-	task, err := service.GetTask(r.URL.Query().Get("id"))
+	task, err := h.tasks.GetTask(r.URL.Query().Get("id"))
 	if err != nil {
 		writeAPIError(w, http.StatusBadRequest, err.Error())
 		return
