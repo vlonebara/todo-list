@@ -6,20 +6,31 @@ import (
 	"github.com/vlonebara/todo-list/pkg/service"
 )
 
-// taskHandlers передаёт общий сервис задач HTTP-обработчикам.
-type taskHandlers struct {
-	tasks service.TaskService
+// apiHandlers передаёт готовые сервисы HTTP-обработчикам.
+type apiHandlers struct {
+	tasks          service.TaskService
+	authentication service.AuthService
 }
 
 // Init регистрирует обработчики с готовым сервисом задач.
-func Init(mux *http.ServeMux, tasks service.TaskService) {
-	handlers := taskHandlers{tasks: tasks}
-	mux.HandleFunc("/api/nextdate", nextDayHandler)
-	mux.HandleFunc("POST /api/signin", authHandler)
-	mux.HandleFunc("GET /api/tasks", auth(handlers.getTasksListHandler))
-	mux.HandleFunc("GET /api/task", auth(handlers.getTaskHandler))
-	mux.HandleFunc("POST /api/task", auth(handlers.addTaskHandler))
-	mux.HandleFunc("PUT /api/task", auth(handlers.editTaskHandler))
-	mux.HandleFunc("DELETE /api/task", auth(handlers.deleteTaskHandler))
-	mux.HandleFunc("POST /api/task/done", auth(handlers.editTaskStatusHandler))
+func Init(mux *http.ServeMux, tasks service.TaskService, authentication service.AuthService) {
+	handlers := apiHandlers{tasks: tasks, authentication: authentication}
+	mux.HandleFunc("/api/nextdate", methods(map[string]http.HandlerFunc{
+		http.MethodGet: nextDayHandler,
+	}))
+	mux.HandleFunc("/api/signin", methods(map[string]http.HandlerFunc{
+		http.MethodPost: handlers.authHandler,
+	}))
+	mux.HandleFunc("/api/tasks", methods(map[string]http.HandlerFunc{
+		http.MethodGet: auth(authentication, handlers.getTasksListHandler),
+	}))
+	mux.HandleFunc("/api/task", methods(map[string]http.HandlerFunc{
+		http.MethodGet:    auth(authentication, handlers.getTaskHandler),
+		http.MethodPost:   auth(authentication, handlers.addTaskHandler),
+		http.MethodPut:    auth(authentication, handlers.editTaskHandler),
+		http.MethodDelete: auth(authentication, handlers.deleteTaskHandler),
+	}))
+	mux.HandleFunc("/api/task/done", methods(map[string]http.HandlerFunc{
+		http.MethodPost: auth(authentication, handlers.editTaskStatusHandler),
+	}))
 }

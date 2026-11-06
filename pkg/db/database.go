@@ -3,16 +3,11 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"os"
 )
 
 // OpenDatabase создаёт общий пул соединений и подготавливает БД.
-func OpenDatabase() (*sql.DB, error) {
-	dbFile := os.Getenv("TODO_DBFILE")
-	if dbFile == "" {
-		dbFile = "scheduler.db"
-	}
-	database, err := sql.Open("sqlite", dbFile)
+func OpenDatabase(file string) (*sql.DB, error) {
+	database, err := sql.Open("sqlite", file)
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}

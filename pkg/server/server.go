@@ -12,13 +12,18 @@ import (
 	"time"
 
 	"github.com/vlonebara/todo-list/pkg/api"
+	"github.com/vlonebara/todo-list/pkg/config"
 	"github.com/vlonebara/todo-list/pkg/db"
 	"github.com/vlonebara/todo-list/pkg/service"
 )
 
 // Run запускает сервер и корректно останавливает его по сигналу ОС.
-func Run() error {
-	database, err := db.OpenDatabase()
+func Run(cfg config.Config) error {
+	authentication, err := service.NewAuthService(cfg.Password, cfg.JWTSecret)
+	if err != nil {
+		return err
+	}
+	database, err := db.OpenDatabase(cfg.DBFile)
 	if err != nil {
 		return err
 	}
@@ -31,13 +36,8 @@ func Run() error {
 	store := db.NewTaskStore(database)
 	tasks := service.NewTaskService(store)
 	mux := http.NewServeMux()
-	api.Init(mux, tasks)
-
-	port := os.Getenv("TODO_PORT")
-	if port == "" {
-		port = "7540"
-	}
-	addr := ":" + port
+	api.Init(mux, tasks, authentication)
+	addr := ":" + cfg.Port
 
 	fileServer := http.FileServer(http.Dir("./web"))
 	mux.Handle("/", fileServer)

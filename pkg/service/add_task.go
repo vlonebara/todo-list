@@ -19,7 +19,7 @@ func (s TaskService) AddTask(date, title, comment, repeat string) (int64, error)
 // prepareTaskDate проверяет поля задачи и исправляет просроченную дату.
 func prepareTaskDate(date, title, repeat string, now time.Time) (string, error) {
 	if strings.TrimSpace(title) == "" {
-		return "", fmt.Errorf("Не указан заголовок задачи")
+		return "", fmt.Errorf("%w: title is required", ErrInvalidTask)
 	}
 
 	today := now.Format(dateLayout)
@@ -27,13 +27,13 @@ func prepareTaskDate(date, title, repeat string, now time.Time) (string, error) 
 		date = today
 	}
 	if _, err := time.Parse(dateLayout, date); err != nil {
-		return "", fmt.Errorf("Некорректная дата: %w", err)
+		return "", fmt.Errorf("%w: invalid date: %v", ErrInvalidTask, err)
 	}
 
 	if repeat != "" {
 		nextDate, err := NextDate(now, date, repeat)
 		if err != nil {
-			return "", fmt.Errorf("Некорректное правило повторения: %w", err)
+			return "", fmt.Errorf("%w: invalid repeat rule: %v", ErrInvalidTask, err)
 		}
 		if date < today {
 			date = nextDate

@@ -2,8 +2,12 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 )
+
+// ErrTaskNotFound сообщает, что задачи с указанным ID нет в БД.
+var ErrTaskNotFound = errors.New("task not found")
 
 // Task содержит сохранённые данные задачи.
 type Task struct {
@@ -35,7 +39,7 @@ func (s TaskStore) Add(task Task) (int64, error) {
 	}
 	id, err := result.LastInsertId()
 	if err != nil {
-		return 0, fmt.Errorf("get task ID: %w", err)
+		return 0, fmt.Errorf("get task id: %w", err)
 	}
 	return id, nil
 }
@@ -47,7 +51,7 @@ func (s TaskStore) Get(id int64) (Task, error) {
 		`SELECT id, date, title, comment, repeat FROM scheduler WHERE id = ?`, id,
 	).Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
 	if err == sql.ErrNoRows {
-		return Task{}, fmt.Errorf("Задача не найдена")
+		return Task{}, ErrTaskNotFound
 	}
 	if err != nil {
 		return Task{}, fmt.Errorf("get task: %w", err)
@@ -92,7 +96,7 @@ func checkTaskChanged(result sql.Result) error {
 		return fmt.Errorf("check changed task: %w", err)
 	}
 	if changed == 0 {
-		return fmt.Errorf("Задача не найдена")
+		return ErrTaskNotFound
 	}
 	return nil
 }
