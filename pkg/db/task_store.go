@@ -4,19 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"github.com/vlonebara/todo-list/pkg/model"
 )
-
-// ErrTaskNotFound сообщает, что задачи с указанным ID нет в БД.
-var ErrTaskNotFound = errors.New("task not found")
-
-// Task содержит сохранённые данные задачи.
-type Task struct {
-	ID      int64
-	Date    string
-	Title   string
-	Comment string
-	Repeat  string
-}
 
 // TaskStore выполняет запросы к задачам через общий пул соединений.
 type TaskStore struct {
@@ -29,7 +19,7 @@ func NewTaskStore(database *sql.DB) TaskStore {
 }
 
 // Add сохраняет задачу и возвращает её ID.
-func (s TaskStore) Add(task Task) (int64, error) {
+func (s TaskStore) Add(task model.Task) (int64, error) {
 	result, err := s.db.Exec(
 		`INSERT INTO scheduler (date, title, comment, repeat) VALUES (?, ?, ?, ?)`,
 		task.Date, task.Title, task.Comment, task.Repeat,
@@ -45,22 +35,22 @@ func (s TaskStore) Add(task Task) (int64, error) {
 }
 
 // Get возвращает задачу с указанным ID.
-func (s TaskStore) Get(id int64) (Task, error) {
-	var task Task
+func (s TaskStore) Get(id int64) (model.Task, error) {
+	var task model.Task
 	err := s.db.QueryRow(
 		`SELECT id, date, title, comment, repeat FROM scheduler WHERE id = ?`, id,
 	).Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
-	if err == sql.ErrNoRows {
-		return Task{}, ErrTaskNotFound
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.Task{}, model.ErrTaskNotFound
 	}
 	if err != nil {
-		return Task{}, fmt.Errorf("get task: %w", err)
+		return model.Task{}, fmt.Errorf("get task: %w", err)
 	}
 	return task, nil
 }
 
 // Update сохраняет новые значения полей задачи.
-func (s TaskStore) Update(task Task) error {
+func (s TaskStore) Update(task model.Task) error {
 	result, err := s.db.Exec(
 		`UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ? WHERE id = ?`,
 		task.Date, task.Title, task.Comment, task.Repeat, task.ID,
@@ -96,7 +86,7 @@ func checkTaskChanged(result sql.Result) error {
 		return fmt.Errorf("check changed task: %w", err)
 	}
 	if changed == 0 {
-		return ErrTaskNotFound
+		return model.ErrTaskNotFound
 	}
 	return nil
 }

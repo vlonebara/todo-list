@@ -1,6 +1,10 @@
 package service
 
-import "time"
+import (
+	"time"
+
+	"github.com/vlonebara/todo-list/pkg/model"
+)
 
 // EditTask проверяет и сохраняет новые данные задачи.
 func (s TaskService) EditTask(id, date, title, comment, repeat string) error {
@@ -14,5 +18,5 @@ func (s TaskService) EditTask(id, date, title, comment, repeat string) error {
 		return err
 	}
 
-	return s.store.Update(Task{ID: taskID, Date: date, Title: title, Comment: comment, Repeat: repeat})
+	return s.store.Update(model.Task{ID: taskID, Date: date, Title: title, Comment: comment, Repeat: repeat})
 }

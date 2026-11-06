@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/vlonebara/todo-list/pkg/model"
 )
 
 // AddTask проверяет и сохраняет задачу, возвращая её ID.
@@ -13,13 +15,13 @@ func (s TaskService) AddTask(date, title, comment, repeat string) (int64, error)
 		return 0, err
 	}
 
-	return s.store.Add(Task{Date: date, Title: title, Comment: comment, Repeat: repeat})
+	return s.store.Add(model.Task{Date: date, Title: title, Comment: comment, Repeat: repeat})
 }
 
 // prepareTaskDate проверяет поля задачи и исправляет просроченную дату.
 func prepareTaskDate(date, title, repeat string, now time.Time) (string, error) {
 	if strings.TrimSpace(title) == "" {
-		return "", fmt.Errorf("%w: title is required", ErrInvalidTask)
+		return "", fmt.Errorf("%w: title is required", model.ErrInvalidTask)
 	}
 
 	today := now.Format(dateLayout)
@@ -27,13 +29,13 @@ func prepareTaskDate(date, title, repeat string, now time.Time) (string, error) 
 		date = today
 	}
 	if _, err := time.Parse(dateLayout, date); err != nil {
-		return "", fmt.Errorf("%w: invalid date: %v", ErrInvalidTask, err)
+		return "", fmt.Errorf("%w: invalid date: %v", model.ErrInvalidTask, err)
 	}
 
 	if repeat != "" {
 		nextDate, err := NextDate(now, date, repeat)
 		if err != nil {
-			return "", fmt.Errorf("%w: invalid repeat rule: %v", ErrInvalidTask, err)
+			return "", fmt.Errorf("%w: invalid repeat rule: %v", model.ErrInvalidTask, err)
 		}
 		if date < today {
 			date = nextDate

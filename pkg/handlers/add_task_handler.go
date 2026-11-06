@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 )
 
 // addTaskHandler обрабатывает POST-запрос и возвращает ID задачи или ошибку.
-func (h apiHandlers) addTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (h Handler) addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var request taskData
 	if err := decodeJSONRequest(r, &request); err != nil {
 		writeAPIError(w, http.StatusBadRequest, err.Error())

@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"net/http"
@@ -14,7 +14,7 @@ type authResponse struct {
 }
 
 // authHandler проверяет пароль и возвращает JWT-токен.
-func (h apiHandlers) authHandler(w http.ResponseWriter, r *http.Request) {
+func (h Handler) authHandler(w http.ResponseWriter, r *http.Request) {
 	var request authRequest
 	if err := decodeJSONRequest(r, &request); err != nil {
 		writeAPIError(w, http.StatusBadRequest, err.Error())

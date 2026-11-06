@@ -1,13 +1,9 @@
-package api
+package handlers
 
-import (
-	"net/http"
-
-	"github.com/vlonebara/todo-list/pkg/service"
-)
+import "net/http"
 
 // auth проверяет JWT cookie, если для сервера настроен пароль.
-func auth(authentication service.AuthService, next http.HandlerFunc) http.HandlerFunc {
+func auth(authentication AuthService, next http.HandlerFunc) http.HandlerFunc {
 	if !authentication.Enabled() {
 		return next
 	}

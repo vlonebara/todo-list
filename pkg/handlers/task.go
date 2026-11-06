@@ -1,9 +1,9 @@
-package api
+package handlers
 
 import (
 	"strconv"
 
-	"github.com/vlonebara/todo-list/pkg/service"
+	"github.com/vlonebara/todo-list/pkg/model"
 )
 
 // taskData задаёт общий JSON-формат задачи для запросов и ответов.
@@ -16,7 +16,7 @@ type taskData struct {
 }
 
 // taskToResponse преобразует задачу сервиса в JSON-формат API.
-func taskToResponse(task service.Task) taskData {
+func taskToResponse(task model.Task) taskData {
 	return taskData{
 		ID:      strconv.FormatInt(task.ID, 10),
 		Date:    task.Date,

@@ -2,23 +2,22 @@ package db
 
 import (
 	"fmt"
-	"time"
+
+	"github.com/vlonebara/todo-list/pkg/model"
 )
 
-const searchDateLayout = "02.01.2006"
-
 // List возвращает до 15 задач по дате или тексту поиска.
-func (s TaskStore) List(search string) ([]Task, error) {
-	query, args := tasksListQuery(search)
+func (s TaskStore) List(filter model.TaskFilter) ([]model.Task, error) {
+	query, args := tasksListQuery(filter)
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("get tasks: %w", err)
 	}
 	defer rows.Close()
 
-	tasks := make([]Task, 0, 15)
+	tasks := make([]model.Task, 0, 15)
 	for rows.Next() {
-		var task Task
+		var task model.Task
 		if err := rows.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat); err != nil {
 			return nil, fmt.Errorf("read task: %w", err)
 		}
@@ -31,18 +30,15 @@ func (s TaskStore) List(search string) ([]Task, error) {
 }
 
 // tasksListQuery строит запрос для списка, даты или текстового поиска.
-func tasksListQuery(search string) (string, []any) {
+func tasksListQuery(filter model.TaskFilter) (string, []any) {
 	const fields = `SELECT id, date, title, comment, repeat FROM scheduler`
 	const orderAndLimit = ` ORDER BY date, id LIMIT 15`
-	if search == "" {
-		return fields + orderAndLimit, nil
+	if filter.Date != "" {
+		return fields + ` WHERE date = ?` + orderAndLimit, []any{filter.Date}
 	}
-
-	date, err := time.Parse(searchDateLayout, search)
-	if err == nil && date.Format(searchDateLayout) == search {
-		return fields + ` WHERE date = ?` + orderAndLimit, []any{date.Format("20060102")}
+	if filter.Text != "" {
+		pattern := "%" + filter.Text + "%"
+		return fields + ` WHERE title LIKE ? OR comment LIKE ?` + orderAndLimit, []any{pattern, pattern}
 	}
-
-	pattern := "%" + search + "%"
-	return fields + ` WHERE title LIKE ? OR comment LIKE ?` + orderAndLimit, []any{pattern, pattern}
+	return fields + orderAndLimit, nil
 }

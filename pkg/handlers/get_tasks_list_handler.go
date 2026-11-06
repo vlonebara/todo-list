@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import "net/http"
 
@@ -7,7 +7,7 @@ type getTasksListResponse struct {
 }
 
 // getTasksListHandler возвращает ближайшие задачи, отсортированные по дате.
-func (h apiHandlers) getTasksListHandler(w http.ResponseWriter, r *http.Request) {
+func (h Handler) getTasksListHandler(w http.ResponseWriter, r *http.Request) {
 	tasks, err := h.tasks.GetTasksList(r.URL.Query().Get("search"))
 	if err != nil {
 		writeAPIError(w, http.StatusInternalServerError, err.Error())
