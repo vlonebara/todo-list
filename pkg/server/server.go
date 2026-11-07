@@ -10,23 +10,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/vlonebara/todo-list/pkg/api"
 )
 
 // Run запускает сервер и корректно останавливает его по сигналу ОС.
-func Run() error {
-	port := os.Getenv("TODO_PORT")
-	if port == "" {
-		port = "7540"
-	}
+func Run(port string, handler http.Handler) error {
 	addr := ":" + port
-
-	api.Init()
-	fileServer := http.FileServer(http.Dir("./web"))
-	http.Handle("/", fileServer)
-
-	server := &http.Server{Addr: addr}
+	server := &http.Server{Addr: addr, Handler: handler}
 	shutdown, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 

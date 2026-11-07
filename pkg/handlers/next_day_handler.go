@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"net/http"
@@ -11,11 +11,6 @@ const dateLayout = "20060102"
 
 // nextDayHandler возвращает ближайшую дату задачи по переданному правилу.
 func nextDayHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	now := time.Now()
 	if value := r.FormValue("now"); value != "" {
 		parsed, err := time.Parse(dateLayout, value)
